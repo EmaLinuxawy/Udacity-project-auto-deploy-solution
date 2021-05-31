@@ -83,6 +83,7 @@ jobs:
           name: frontend-test
           command: |
               cd frontend
+              npm i --save-dev oauth-sign
               npm run test
 
   test-backend:
