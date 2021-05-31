@@ -108,6 +108,7 @@ jobs:
           name: frontend-scan
           command: |
               cd frontend
+              npm install --save-dev html-loader@2.1.2
               npm audit --audit-level=critical --force
 
   scan-backend:
