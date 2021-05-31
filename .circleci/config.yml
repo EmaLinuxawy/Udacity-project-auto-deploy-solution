@@ -335,25 +335,25 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations 
 
-cleanup:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-      - run:
-          name: Remove old stacks and files
-          command: |
-            export OLD_WORKFLOW_ID=$(curl -H "token: 0bd51f2c-bf46-41af-9e88-5f11084ce239" --request GET \
-                                      https://api.memstash.io/values/udacity-project-workflow-id)
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-                            --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
-              
-            echo Old Workflow Id:${OLD_WORKFLOW_ID}
-            echo "New id:${CIRCLE_WORKFLOW_ID:0:7}"
-            echo ${STACKS}
-            aws s3 rm s3://udapeople-${OLD_WORKFLOW_ID} --recursive
-            aws cloudformation delete-stack --stack-name backend-${OLD_WORKFLOW_ID}
-            aws cloudformation delete-stack --stack-name frontend-${OLD_WORKFLOW_ID}
+  cleanup:
+      docker:
+        - image: amazon/aws-cli
+      steps:
+        - checkout
+        - run:
+            name: Remove old stacks and files
+            command: |
+              export OLD_WORKFLOW_ID=$(curl -H "token: 0bd51f2c-bf46-41af-9e88-5f11084ce239" --request GET \
+                                        https://api.memstash.io/values/udacity-project-workflow-id)
+              export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+                              --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+                
+              echo Old Workflow Id:${OLD_WORKFLOW_ID}
+              echo "New id:${CIRCLE_WORKFLOW_ID:0:7}"
+              echo ${STACKS}
+              aws s3 rm s3://udapeople-${OLD_WORKFLOW_ID} --recursive
+              aws cloudformation delete-stack --stack-name backend-${OLD_WORKFLOW_ID}
+              aws cloudformation delete-stack --stack-name frontend-${OLD_WORKFLOW_ID}
             
 
 workflows:
