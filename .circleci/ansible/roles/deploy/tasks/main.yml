@@ -1,7 +1,3 @@
-  - name: Write the new ec2 instance host key to known hosts
-    connection: local
-    shell: "ssh-keyscan -H {{ inventory_hostname }} >> ~/.ssh/known_hosts"
-
 - name: "Move backend files to server."
   copy:
     src: /root/project/backend_artifact.tar.gz
