@@ -293,13 +293,9 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            EC2_PUBGLIC_URL=`aws ec2 describe-instances \
-                --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                --output text` && \
-            echo $EC2_PUBGLIC_URL >> ~/.ssh/known_hosts \
             tar -C backend -czvf backend_artifact.tar.gz . && \
             cd .circleci/ansible && \
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations
