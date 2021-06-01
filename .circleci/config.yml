@@ -27,7 +27,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS = `curl -H "token: 0bd51f2c-bf46-41af-9e88-5f11084ce239" --request GET https://api.memstash.io/values/udacity-project-migrations`
+            SUCCESS=`curl -H "token: 0bd51f2c-bf46-41af-9e88-5f11084ce239" --request GET https://api.memstash.io/values/udacity-project-migrations`
             echo $SUCCESS
             if(( $SUCCESS==1 )); 
             then
@@ -235,7 +235,7 @@ jobs:
                 --request PUT \
                 --data '1' \
                 https://api.memstash.io/values/udacity-project-migrations
-            else \
+            else
               curl -H "Content-Type: text/plain" -H "token: 0bd51f2c-bf46-41af-9e88-5f11084ce239" \
                 --request PUT \
                 --data '0' \
@@ -326,7 +326,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            if curl -s  "http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com" | grep "Welcome"
+            if curl -s "http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-2.amazonaws.com" | grep "Welcome"
             then
               return 0
             else
