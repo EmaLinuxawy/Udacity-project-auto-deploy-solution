@@ -342,19 +342,16 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Update cloudfront distribution
+          name: Knowing Old Workflow ID
           command: |
-            export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)
-
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+            export OLD_WORKFLOW_ID=$(aws cloudformation list-exports \
+            --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)
 
             curl -H "Content-Type: text/plain" -H "token: 0bd51f2c-bf46-41af-9e88-5f11084ce239" \
-              --request PUT --data "${OLD_WORKFLOW_ID}" https://api.memstash.io/values/udacity-project-workflow-id
-
-            echo Old Workflow Id: ${OLD_WORKFLOW_ID}
-            echo Actual Workflow Id: ${CIRCLE_WORKFLOW_ID:0:7}
-            echo Stacks available: ${STACKS}
-
+            --request PUT --data "$OLD_WORKFLOW_ID" https://api.memstash.io/values/udacity-project-workflow-id
+      - run:
+          name: Update cloudfront distribution
+          command: |
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name udapeople-${CIRCLE_WORKFLOW_ID:0:7} \
@@ -371,14 +368,15 @@ jobs:
       steps:
         - checkout
         - run:
-            name: Remove old stacks and files
+            name: Remove old stacks
             command: |
               export OLD_WORKFLOW_ID=$(curl -H "token: 0bd51f2c-bf46-41af-9e88-5f11084ce239" --request GET https://api.memstash.io/values/udacity-project-workflow-id)
               export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
 
-              echo Old Workflow Id:${OLD_WORKFLOW_ID}
-              echo "New id:${CIRCLE_WORKFLOW_ID:0:7}"
+              echo OLD_WORKFLOW_ID: ${OLD_WORKFLOW_ID}
+              echo Current_WORKFLOW_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+              
               echo ${STACKS}
               aws s3 rm s3://udapeople-${OLD_WORKFLOW_ID} --recursive
               aws cloudformation delete-stack --stack-name backend-${OLD_WORKFLOW_ID}
