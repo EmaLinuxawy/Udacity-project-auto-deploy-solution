@@ -7,7 +7,7 @@ parameters:
 
 commands:
   destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    description: Destroy backend and front-end cloudformation stacks given a workflow ID.
     parameters:
       workflow_id:
         type: "string"
@@ -63,7 +63,7 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
-          name: Back-end build
+          name: backend build
           command: |
             cd backend
             npm i
@@ -136,7 +136,7 @@ jobs:
           command: |
             yum -y install tar gzip
       - run:
-          name: Ensure back-end infrastructure exists
+          name: Ensure backend infrastructure exists
           command: |
             echo $AWS_DEFAULT_REGION
             aws cloudformation deploy \
@@ -153,7 +153,7 @@ jobs:
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
-          name: Add back-end ip to ansible inventory
+          name: Add backend ip to ansible inventory
           command: |
             echo "[web]" > .circleci/ansible/inventory.txt && \
             EC2_PUBGLIC_URL=`aws ec2 describe-instances \
@@ -341,19 +341,20 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      #- run:
+      #    name: Knowing Old Workflow ID
+      #    command: |
       - run:
-          name: Knowing Old Workflow ID
+          name: Update cloudfront distribution
           command: |
             export OLD_WORKFLOW_ID=$(aws cloudformation list-exports \
             --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)
 
             echo OLD_WORKFLOW_ID: ${OLD_WORKFLOW_ID}
-            
+
             curl -H "Content-Type: text/plain" -H "token: 0bd51f2c-bf46-41af-9e88-5f11084ce239" \
             --request PUT --data "$OLD_WORKFLOW_ID" https://api.memstash.io/values/udacity-project-workflow-id
-      - run:
-          name: Update cloudfront distribution
-          command: |
+
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name udapeople-${CIRCLE_WORKFLOW_ID:0:7} \
@@ -383,7 +384,6 @@ jobs:
               aws s3 rm s3://udapeople-${OLD_WORKFLOW_ID} --recursive
               aws cloudformation delete-stack --stack-name backend-${OLD_WORKFLOW_ID}
               aws cloudformation delete-stack --stack-name frontend-${OLD_WORKFLOW_ID}
-            
 
 workflows:
   default:
