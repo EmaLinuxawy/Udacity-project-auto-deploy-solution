@@ -129,6 +129,7 @@ jobs:
               cd frontend
               npm audit fix --force
               npm audit --audit-level=critical --force
+              return 1
       - slack/notify:
           event: fail
           mentions: '@DevOps'
@@ -165,7 +166,7 @@ jobs:
       - run:
           name: Install tar
           command: |
-            yum -y install tar gzip
+            yum -y install tar gzip jq
       - run:
           name: Ensure backend infrastructure exists
           command: |
@@ -237,7 +238,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible nodejs npm curl && \
+            apk add --update tar gzip ansible nodejs npm curl jq && \
             pip install awscli
       - run:
           name: Configure server
@@ -308,7 +309,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible nodejs npm curl
+            apk add --update tar gzip ansible nodejs npm curl jq
             pip install awscli
       - run:
           name: Deploy frontend objects
@@ -347,7 +348,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible nodejs npm curl openssh-client
+            apk add --update tar gzip ansible nodejs npm curl openssh-client jq
             pip install awscli
       - run:
           name: Deploy backend
@@ -381,6 +382,7 @@ jobs:
               && pip3 install --upgrade pip \
               && pip3 install \
               awscli \
+              jq \
               && rm -rf /var/cache/apk/*
       - run:
           name: Backend smoke test.
