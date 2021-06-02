@@ -463,13 +463,6 @@ jobs:
               aws s3 rm s3://udapeople-${OLD_WORKFLOW_ID} --recursive
               aws cloudformation delete-stack --stack-name backend-${OLD_WORKFLOW_ID}
               aws cloudformation delete-stack --stack-name frontend-${OLD_WORKFLOW_ID}
-      - slack/notify:
-          event: fail
-          mentions: '@DevOps'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
 
 workflows:
   default:
@@ -514,4 +507,3 @@ workflows:
           context: slack-context
       - cleanup:
           requires: [cloudfront-update]
-          context: slack-context
