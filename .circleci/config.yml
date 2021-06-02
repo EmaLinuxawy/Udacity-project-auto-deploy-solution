@@ -129,7 +129,6 @@ jobs:
               cd frontend
               npm audit fix --force
               npm audit --audit-level=critical --force
-              return 1
       - slack/notify:
           event: fail
           mentions: '@DevOps'
