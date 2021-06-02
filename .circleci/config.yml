@@ -217,13 +217,6 @@ jobs:
             - project/backend/.env
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - slack/notify:
-          event: fail
-          mentions: '@DevOps'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
 
   configure-infrastructure:
     docker:
@@ -247,13 +240,6 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - slack/notify:
-          event: fail
-          mentions: '@DevOps'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
 
   run-migrations:
     docker:
@@ -290,13 +276,6 @@ jobs:
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}   
       - revert-migrations
-      - slack/notify:
-          event: fail
-          mentions: '@DevOps'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
 
   deploy-frontend:
     docker:
@@ -325,13 +304,6 @@ jobs:
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7} 
       - revert-migrations
-      - slack/notify:
-          event: fail
-          mentions: '@DevOps'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
                     
   deploy-backend:
     docker:
@@ -358,13 +330,6 @@ jobs:
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations
-      - slack/notify:
-          event: fail
-          mentions: '@DevOps'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
 
   smoke-test:
     docker:
@@ -381,7 +346,6 @@ jobs:
               && pip3 install --upgrade pip \
               && pip3 install \
               awscli \
-              jq \
               && rm -rf /var/cache/apk/*
       - run:
           name: Backend smoke test.
@@ -402,13 +366,6 @@ jobs:
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations
-      - slack/notify:
-          event: fail
-          mentions: '@DevOps'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
 
   cloudfront-update:
     docker:
@@ -437,13 +394,6 @@ jobs:
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations
-      - slack/notify:
-          event: fail
-          mentions: '@DevOps'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
 
   cleanup:
       docker:
