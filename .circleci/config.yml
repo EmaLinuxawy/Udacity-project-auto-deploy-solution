@@ -184,18 +184,18 @@ jobs:
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
-          name: Add backend ip to ansible inventory
+          name: Add back-end ip to ansible inventory
           command: |
             echo "[web]" > .circleci/ansible/inventory.txt && \
-            EC2_PUBGLIC_URL=`aws ec2 describe-instances \
+            Backend_API_IP=`aws ec2 describe-instances \
                 --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --output text` && \
-            echo $EC2_PUBGLIC_URL >> .circleci/ansible/inventory.txt
-            echo URL $EC2_PUBGLIC_URL && \
-            echo TOKEN 0bd51f2c-bf46-41af-9e88-5f11084ce239 && \
+            echo $Backend_API_IP >> .circleci/ansible/inventory.txt
+
             curl -H "Content-Type: text/plain" -H "token: 0bd51f2c-bf46-41af-9e88-5f11084ce239" \
                 --request PUT \
-                --data $EC2_PUBGLIC_URL https://api.memstash.io/values/udacity-project && \
+                --data $Backend_API_IP https://api.memstash.io/values/udacity-project-backend-api && \
             cat .circleci/ansible/inventory.txt
       - run:
           name: Add .env vars to backend distro
@@ -293,9 +293,9 @@ jobs:
           name: Deploy frontend objects
           command: |
             cd frontend && \
-            EC2_PUBLIC_URL=`curl -H "token: 0bd51f2c-bf46-41af-9e88-5f11084ce239" \
-                        --request GET https://api.memstash.io/values/udacity-project` && \
-            API_URL="http://${EC2_PUBLIC_URL}:3030" && \
+            Backend_API_IP=`curl -H "token: 0bd51f2c-bf46-41af-9e88-5f11084ce239" \
+                        --request GET https://api.memstash.io/values/udacity-project-backend-api` && \
+            API_URL="http://${Backend_API_IP}:3030" && \
             echo API_URL=$API_URL && \
             echo API_URL=$API_URL > .env && \
             npm i && \
@@ -351,7 +351,7 @@ jobs:
           name: Backend smoke test.
           command: |
             BACKEND_IP=$(curl -H "token: 0bd51f2c-bf46-41af-9e88-5f11084ce239" \
-              --request GET https://api.memstash.io/values/udacity-project)
+              --request GET https://api.memstash.io/values/udacity-project-backend-api)
             API_URL="http://${BACKEND_IP}:3030/api/status"
             echo "${API_URL}"
       - run:
@@ -373,15 +373,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Update cloudfront distribution
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/cloudfront.yml \
-              --stack-name udapeople-${CIRCLE_WORKFLOW_ID:0:7} \
-              --region ${AWS_DEFAULT_REGION} \
-              --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7} \
-              --tags project=udapeople
-      - run:
           name: Knowing Old Workflow ID
           command: |
             export OLD_WORKFLOW_ID=$(aws cloudformation list-exports \
@@ -391,6 +382,15 @@ jobs:
 
             curl -H "Content-Type: text/plain" -H "token: 0bd51f2c-bf46-41af-9e88-5f11084ce239" \
             --request PUT --data "$OLD_WORKFLOW_ID" https://api.memstash.io/values/udacity-project-workflow-id
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --stack-name udapeople-${CIRCLE_WORKFLOW_ID:0:7} \
+              --region ${AWS_DEFAULT_REGION} \
+              --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7} \
+              --tags project=udapeople
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations
@@ -408,7 +408,7 @@ jobs:
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
 
               echo OLD_WORKFLOW_ID: ${OLD_WORKFLOW_ID}
-              echo Current_WORKFLOW_ID: ${CIRCLE_WORKFLOW_ID:0:7}
+              echo OurCurrentWorkFlow: ${STACKS[@]}
 
               if [[ "${STACKS[@]}" =~ "${OLD_WORKFLOW_ID}" ]]
               then
