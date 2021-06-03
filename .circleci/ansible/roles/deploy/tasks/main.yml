@@ -5,10 +5,11 @@
 
 - name: "Install package dependencies"
   shell: |
-    cd ~/backend
+    cd ~/
     tar -xzvf backend_artifact.tar.gz -C backend
     rm backend_artifact.tar.gz
     cd backend/
+    npm i
     npm run build
     cd dist
     pm2 start npm --name backend -- start
